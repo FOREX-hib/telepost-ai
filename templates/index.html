@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
+    {% if request.args.get('msg') %}
+<div class="notification {{ 'success' if '✅' in request.args.get('msg') else 'error' }}">
+    {{ request.args.get('msg') }}
+</div>
+{% endif %}
 <head>
     <meta charset="UTF-8">
     <title>⚙️ AetherPost — Автопостинг с ИИ</title>
