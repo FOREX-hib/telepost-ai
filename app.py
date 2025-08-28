@@ -69,6 +69,15 @@ def toggle():
     update_setting('enabled', 0 if settings['enabled'] else 1)
     return redirect('/')
 
+@app.route('/send_test_post', methods=['POST'])
+def send_test_post():
+    try:
+        import asyncio
+        from bot import send_daily_post
+        asyncio.run(send_daily_post())
+        return redirect("/?msg=✅ Тестовый пост отправлен!")
+    except Exception as e:
+        return redirect(f"/?msg=❌ Ошибка: {str(e)}")
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
