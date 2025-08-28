@@ -1,6 +1,6 @@
 import os
 import sqlite3
-import asyncio
+import asyncio  # ✅ Перенесён в начало
 from flask import Flask, render_template, request, redirect
 from flask_httpauth import HTTPBasicAuth
 
@@ -39,7 +39,12 @@ def get_settings():
         row = c.fetchone()
         return dict(row)
 
+# ✅ Список разрешённых полей для защиты от SQL-инъекций
+ALLOWED_FIELDS = {'topics', 'post_time', 'style', 'enabled'}
+
 def update_setting(field, value):
+    if field not in ALLOWED_FIELDS:
+        raise ValueError(f"Недопустимое поле: {field}")
     with sqlite3.connect('config.db') as conn:
         conn.execute(f"UPDATE settings SET {field} = ? WHERE id=1", (value,))
         conn.commit()
@@ -73,20 +78,19 @@ def update_style():
 @auth.login_required
 def toggle():
     settings = get_settings()
-    update_setting('enabled', 0 if settings['enabled'] else 1)
+    # Переключаем статус
+    new_status = 0 if settings['enabled'] else 1
+    update_setting('enabled', new_status)
     return redirect('/')
 
-# ✅ Исправлено: добавлен декоратор @auth.login_required
 @app.route('/send_test_post', methods=['POST'])
 @auth.login_required
 def send_test_post():
     try:
         from bot import send_daily_post
-        # Запускаем асинхронную функцию
         asyncio.run(send_daily_post())
         return redirect("/?msg=✅ Тестовый пост отправлен!")
     except Exception as e:
-        # Безопасное логирование
         print(f"❌ Ошибка при отправке тестового поста: {str(e)}")
         return redirect(f"/?msg=❌ Ошибка: {str(e)}")
 
