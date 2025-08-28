@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER,
+    user INTEGER,
+    text TEXT,
+    date TEXT
+);
+
+CREATE TABLE IF NOT EXISTS reactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER,
+    user INTEGER,
+    emoji TEXT,
+    date TEXT
+);
