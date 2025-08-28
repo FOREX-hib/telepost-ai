@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>⚙️ AetherPost — Автопостинг с ИИ</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌌 AetherPost</h1>
+            <p><small>Автоматическая публикация постов в Telegram с помощью искусственного интеллекта</small></p>
+        </header>
+
+        <div class="card">
+            <h2>📝 Темы для постов</h2>
+            <p>Введите список тем через запятую. Например: мотивация, заработок, саморазвитие</p>
+            <form method="post" action="/update_topics">
+                <textarea name="topics" rows="5" placeholder="мотивация, финансы, психология, крипта...">{{ topics }}</textarea>
+                <button type="submit">Сохранить темы</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>⏰ Время публикации</h2>
+            <p>Выберите время, когда должен быть опубликован пост каждый день.</p>
+            <form method="post" action="/update_time">
+                <input type="time" name="post_time" value="{{ post_time }}">
+                <button type="submit">Сохранить время</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>🎨 Стиль текста</h2>
+            <p>Укажите, каким должен быть стиль поста: дружелюбным, строгим, юмористическим и т.д.</p>
+            <form method="post" action="/update_style">
+                <input type="text" name="style" value="{{ style }}" placeholder="дружелюбный и мотивирующий">
+                <button type="submit">Сохранить стиль</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>🔌 Статус автопостинга</h2>
+            <p><strong>Текущий статус:</strong> {{ "✅ Включён" if enabled else "❌ Выключен" }}</p>
+            <form method="post" action="/toggle">
+                <button type="submit">{{ "Выключить" if enabled else "Включить" }}</button>
+            </form>
+        </div>
+
+        {% if last_post %}
+        <div class="card">
+            <h2>📬 Последний опубликованный пост</h2>
+            <div class="post-preview">{{ last_post }}</div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
