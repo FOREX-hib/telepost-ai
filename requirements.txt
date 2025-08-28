@@ -1,0 +1,6 @@
+Flask
+google-generativeai
+telethon
+schedule
+requests
+flask-httpauth
