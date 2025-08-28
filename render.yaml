@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: telepost-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ADMIN_USER
+        fromFile: false
+      - key: ADMIN_PASS
+        fromFile: false
+    secretFiles:
+      - key: GEMINI_API_KEY
+      - key: API_ID
+      - key: API_HASH
+      - key: BOT_TOKEN
+      - key: CHANNEL_USERNAME
+
+  - type: worker
+    name: telepost-ai-worker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scheduler.py
+    envVars: same as above
+    secretFiles: same as above
