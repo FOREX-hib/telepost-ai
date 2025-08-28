@@ -1,23 +1,29 @@
 import os
 import sqlite3
+import asyncio
 from flask import Flask, render_template, request, redirect
 from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
+# --- Аутентификация ---
 @auth.verify_password
 def verify(username, password):
-    return username == os.environ['ADMIN_USER'] and password == os.environ['ADMIN_PASS']
+    return (
+        username == os.environ['ADMIN_USER'] and
+        password == os.environ['ADMIN_PASS']
+    )
 
+# --- База данных ---
 def init_db():
     with sqlite3.connect('config.db') as conn:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY,
-                topics TEXT DEFAULT 'мотивация, заработок, психология',
+                topics TEXT DEFAULT 'маркетинг, бренд, SMM, копирайтинг',
                 post_time TEXT DEFAULT '09:00',
-                style TEXT DEFAULT 'дружелюбный и мотивирующий',
+                style TEXT DEFAULT 'профессионально, лаконично, с примером',
                 enabled INTEGER DEFAULT 1,
                 last_post TEXT
             )
@@ -38,6 +44,7 @@ def update_setting(field, value):
         conn.execute(f"UPDATE settings SET {field} = ? WHERE id=1", (value,))
         conn.commit()
 
+# --- Маршруты ---
 @app.route('/')
 @auth.login_required
 def index():
@@ -69,15 +76,21 @@ def toggle():
     update_setting('enabled', 0 if settings['enabled'] else 1)
     return redirect('/')
 
+# ✅ Исправлено: добавлен декоратор @auth.login_required
 @app.route('/send_test_post', methods=['POST'])
+@auth.login_required
 def send_test_post():
     try:
-        import asyncio
         from bot import send_daily_post
+        # Запускаем асинхронную функцию
         asyncio.run(send_daily_post())
         return redirect("/?msg=✅ Тестовый пост отправлен!")
     except Exception as e:
+        # Безопасное логирование
+        print(f"❌ Ошибка при отправке тестового поста: {str(e)}")
         return redirect(f"/?msg=❌ Ошибка: {str(e)}")
+
+# --- Запуск ---
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
