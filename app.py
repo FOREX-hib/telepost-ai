@@ -94,6 +94,13 @@ def send_test_post():
         print(f"❌ Ошибка при отправке тестового поста: {str(e)}")
         return redirect(f"/?msg=❌ Ошибка: {str(e)}")
 
+@app.route('/stats')
+@auth.login_required
+def stats():
+    with sqlite3.connect('stats.db') as conn:
+        comments = conn.execute('SELECT * FROM comments ORDER BY date DESC LIMIT 20').fetchall()
+        reactions = conn.execute('SELECT * FROM reactions ORDER BY date DESC LIMIT 20').fetchall()
+    return render_template('stats.html', comments=comments, reactions=reactions)
 # --- Запуск ---
 if __name__ == '__main__':
     init_db()
